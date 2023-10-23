@@ -1,6 +1,6 @@
 #include "JobSystem.h"
-#include "JobSystem/CustomJob.h"
-#include "JobSystem/CustomJobFactory.h"
+#include "CustomJob.h"
+#include "CustomJobFactory.h"
 #include <fstream>
 #include <direct.h>
 #include <windows.h>
@@ -111,7 +111,6 @@ int main (){
         }
     }
 
-    delete js;
     return 0;
 }
 

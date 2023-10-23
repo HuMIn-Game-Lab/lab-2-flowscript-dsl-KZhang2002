@@ -12,10 +12,10 @@ add_library(JobSystem SHARED
 
 add_executable(lab_2_flowscript_dsl_KZhang2002
         Code/main.cpp
-        Code/JobSystem/CustomJob.cpp
-        Code/JobSystem/CustomJobFactory.cpp)
+        Code/CustomJob.cpp
+        Code/CustomJobFactory.cpp)
 
-set_target_properties(JobSystem PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set_target_properties(JobSystem PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_include_directories(JobSystem PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/Code/JobSystem)

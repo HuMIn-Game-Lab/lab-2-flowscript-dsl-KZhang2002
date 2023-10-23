@@ -18,10 +18,15 @@ JobWorkerThread::~JobWorkerThread() {
 }
 
 void JobWorkerThread::StartUp() {
+    m_workerStatusMutex.lock();
+    m_isStopping = false;
+    m_workerStatusMutex.unlock();
+
     m_thread = new std::thread(WorkerThreadMain, this);
 }
 
 void JobWorkerThread::Work(){
+    //cout << "Work called" << endl;
     while(!IsStopping()){
         m_workerStatusMutex.lock();
         unsigned long workerJobChannels = m_workerJobChannels;
@@ -58,7 +63,7 @@ void JobWorkerThread::SetWorkerJobChannels(unsigned long workerJobChannels) {
     m_workerStatusMutex.unlock();
 }
 
-void JobWorkerThread::WorkerThreadMain( JobWorkerThread *workerThreadObject) {
+void JobWorkerThread::WorkerThreadMain(JobWorkerThread *workerThreadObject) {
     JobWorkerThread* thisWorker = (JobWorkerThread*) workerThreadObject;
     thisWorker->Work();
 }

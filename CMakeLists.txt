@@ -3,7 +3,21 @@ project(lab_2_flowscript_dsl_KZhang2002)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(lab_2_flowscript_dsl_KZhang2002 Code/main.cpp Code/Job.h
-        Code/JobWorkerThread.h Code/JobWorkerThread.cpp
-        Code/JobSystem.h Code/JobSystem.cpp
-        Code/CompileJob.h Code/CompileJob.cpp)
+add_library(JobSystem SHARED
+        Code/JobSystem/JobWorkerThread.cpp
+        Code/JobSystem/JobSystem.cpp
+        Code/JobSystem/DefaultJobFactory.cpp
+        Code/JobSystem/CompileJob.cpp
+        Code/JobSystem/RenderJob.cpp)
+
+add_executable(lab_2_flowscript_dsl_KZhang2002
+        Code/main.cpp
+        Code/JobSystem/CustomJob.cpp
+        Code/JobSystem/CustomJobFactory.cpp)
+
+set_target_properties(JobSystem PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+
+target_include_directories(JobSystem PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/Code/JobSystem)
+
+target_link_libraries(lab_2_flowscript_dsl_KZhang2002 JobSystem)

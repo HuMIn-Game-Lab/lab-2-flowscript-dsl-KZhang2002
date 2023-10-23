@@ -1,8 +1,17 @@
 #include "JobSystem.h"
-#include "CompileJob.h"
+#include "JobSystem/CustomJob.h"
+#include "JobSystem/CustomJobFactory.h"
 #include <fstream>
+#include <direct.h>
+#include <windows.h>
 
 int main (){
+    char buffer[_MAX_PATH];
+    if (_getcwd(buffer, _MAX_PATH)) {
+        std::cout << "Current working directory: " << buffer << std::endl;
+    } else {
+        std::cerr << "Failed to get the current working directory." << std::endl;
+    }
 
     std::cout << "Creating Job System" << std::endl;
 
@@ -22,42 +31,68 @@ int main (){
     js -> CreateWorkerThread("Thread10", 0xFFFFFFFF);
     js -> DestroyWorkerThread("Thread10");
 
-    std::cout << "Create Jobs Queue" << std::endl;
+    js->Stop();
 
-    std::vector<Job*> jobs;
-    std::string makefileCommand = "make successTest";
+    ifstream cjb("../Data/jobJSONs/compileJobErrorTest.json");
+    if (cjb.good()) js->CreateAndQueueJob(JobSystem::ReadFile(cjb));
+    else cout << "File read error" << endl;
+    cjb.close();
 
-    CompileJob* cjb= new CompileJob(0xFFFFFFFF, 1, makefileCommand, "successTest");
-    jobs.push_back(cjb);
+    ifstream cjb2("../Data/jobJSONs/compileJobSuccessTest.json");
+    if (cjb2.good()) js->CreateAndQueueJob(JobSystem::ReadFile(cjb2));
+    else cout << "File read error" << endl;
+    cjb2.close();
 
-    makefileCommand = "make errorTest";
 
-    CompileJob* cjb2= new CompileJob(0xFFFFFFFF, 1, makefileCommand, "errorTest");
-    jobs.push_back(cjb2);
-
-    std::cout << "Queueing Jobs " << std::endl;
-
-    std::vector<Job*>::iterator it = jobs.begin();
-
-    for (; it != jobs.end(); ++it) {
-        js->QueueJob(*it);
+    for (int j = 0; j < 10; j++) {
+        ifstream rjb("../Data/jobJSONs/renderJob.json");
+        if (rjb.good()) js -> CreateAndQueueJob(JobSystem::ReadFile(rjb));
+        else cout << "File read error" << endl;
+        rjb.close();
     }
+
+
+    ifstream cmjb("../Data/jobJSONs/customJob.json");
+    json customJob;
+    if (cmjb.good()) customJob = JobSystem::ReadFile(cmjb);
+    else cout << "File read error" << endl;
+    JobFactory* cj = new CustomJobFactory();
+    js->RegisterJobFactory("custom", cj);
+    js->CreateAndQueueJob(customJob);
+    cmjb.close();
+
+    ifstream rjb("../Data/jobJSONs/renderJob.json");
+    if (rjb.good()) js -> CreateAndQueueJob(JobSystem::ReadFile(rjb));
+    else cout << "File read error" << endl;
+    rjb.close();
+
+    js->PrintAllJobsStatuses();
+    js->Start();
 
     int running = 1;
     int curJobID = 0;
 
     while (running) {
         std::string command;
-        std::cout << "Enter stop, destroy, finish, finishjob, or status \n";
+        std::cout << "Enter stop, start, destroy, finish, status, job status, destroyjob, or finishjob\n";
         std::cin >> command;
 
         if (command == "stop") {
-            running = 0;
+            js -> Stop();
+        }
+        else if (command == "start") {
+            js -> Start();
         }
         else if (command == "destroy") {
             js -> FinishCompletedJobs();
             js -> Destroy();
             running = 0;
+        }
+        else if (command == "destroyjob") {
+            js -> DestroyJob(0);
+        }
+        else if (command == "jobstatus") {
+            js -> PrintJobStatus(0);
         }
         else if (command == "finish"){
             js->FinishCompletedJobs();
@@ -69,17 +104,14 @@ int main (){
             curJobID++;
         }
         else if(command == "status") {
-            std::cout << "Job Status" << std::endl;
-            for (int i = 0; i < jobs.size(); i++) {
-                std::cout << "Job " << i << " Status: " << (int)js->GetJobStatus(i)
-                          << std::endl;
-            }
+            js->PrintAllJobsStatuses();
         }
         else {
             std::cout << "Invalid Command" << std::endl;
         }
     }
 
+    delete js;
     return 0;
 }
 

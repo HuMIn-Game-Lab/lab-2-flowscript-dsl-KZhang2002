@@ -8,21 +8,49 @@
 #include "json.hpp"
 #include <fstream>
 
-using namespace std;
+CompileJob::CompileJob(json input) : Job(input) {
+    if (input.find("input") == input.end()) {
+        cout << "No inputs given. Aborting job." << endl;
+        return;
+    }
+
+    if (input["input"].find("makefileContents") != input["input"].end()) {
+        makefileContents = input["input"].at("makefileContents");
+        cout << "Makefile contents set as: " << makefileContents << endl;
+    } else {
+        cout << "No makefile commands given. Aborting job." << endl;
+        return;
+    }
+
+    if (input["input"].find("outputFileName") != input["input"].end()) {
+        outputFileName = input["input"].at("outputFileName");
+        cout << "Output file name set as: " << outputFileName << endl;
+    } else {
+        outputFileName = "output";
+        cout << "No output file name given. Output will have the default name \"output\"." << endl;
+    }
+}
 
 void CompileJob::Execute() {
     cout << "Executing compile job" << endl;
-    cout << "Running compile" << endl;
+    //cout << "Running compile" << endl;
     Compile();
-    cout << "Parsing errors from compile" << endl;
+    //cout << "Parsing errors from compile" << endl;
     ParseError();
-    cout << "Outputing error to JSON" << endl;
+    //cout << "Outputting error to JSON" << endl;
     OutputToJSON();
+
+    std::cout << "Job: " << this->GetUniqueID() << " has been executed"
+              << std::endl;
 }
 
 void CompileJob::JobCompleteCallback() {
-    std::cout << "Compile Job " << this->GetUniqueID() << " | Return code " << this->returnCode << std::endl;
-    std::cout << "Compile Job " << this->GetUniqueID() << " | Output: \n\n" << this->output << std::endl;
+    std::cout << "Compile Job " << this->GetUniqueID() << " | Return code " << this->returnCode << " | Output: ";
+    if (this->output.empty()) {
+        cout << "No output. Code compilation successful." << endl;
+    } else {
+        std::cout << "\n\n" << this->output << std::endl;
+    }
 }
 
 void CompileJob::Compile() {
@@ -33,7 +61,7 @@ void CompileJob::Compile() {
     // Redirect err to cout
     command.append(" 2>&1");
 
-    cout << "Running command: " << command << endl;
+    //cout << "Running command: " << command << endl;
 
     // open pipe and run command
     FILE *pipe = popen(command.c_str(), "r");
@@ -50,7 +78,7 @@ void CompileJob::Compile() {
     // close pipe and get return code
     this->returnCode = pclose(pipe);
 
-    std::cout << "Job " << this->GetUniqueID() << " has been executed" << std::endl;
+    std::cout << "Compiling for job " << this->GetUniqueID() << " has been completed" << std::endl;
 }
 
 void CompileJob::ParseError() {
@@ -147,12 +175,12 @@ void CompileJob::OutputToJSON() {
         json_str = "Files compiled successfuly. No errors found.";
     }
     // Write JSON data to a file
-    string outputDirectory = "../Data/";
+    string outputDirectory = "../Data/output/";
     string fileName = outputFileName + ".json";
     string outputFile = outputDirectory + fileName; // Specify the relative path to the output file
     ofstream json_file(outputFile);
     json_file << json_str;
     json_file.close();
 
-    std::cout << "g++ error and warning messages converted to JSON and saved to './Data'." << std::endl;
+    std::cout << "g++ error and warning messages converted to JSON and saved to \"" << outputDirectory << "\"." << std::endl;
 }

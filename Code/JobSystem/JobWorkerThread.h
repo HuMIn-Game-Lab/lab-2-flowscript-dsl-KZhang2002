@@ -22,6 +22,7 @@ private:
 
     void ShutDown(); //Signal that work should stop at next opportunity
 
+
     bool IsStopping() const; //missing
     void SetWorkerJobChannels(unsigned long workerJobChannels);
     static void WorkerThreadMain(JobWorkerThread *workThreadObject);

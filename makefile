@@ -1,6 +1,7 @@
 # Compiler and flags
 CXX = g++
 CXXFLAGS = -std=c++14 -fPIC
+INCLUDES = -I./Code/JobSystem  # Include path to JobSystem headers
 
 # Source files for the shared library
 LIB_SRC = Code/JobSystem/JobWorkerThread.cpp \
@@ -23,12 +24,12 @@ EXE_NAME = lab_2_flowscript_dsl_KZhang2002
 compile: $(LIB_NAME) $(EXE_NAME)
 
 $(LIB_NAME): $(LIB_SRC)
-	$(CXX) $(CXXFLAGS) -shared -o $@ $^
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -shared -o $@ $^
 
 $(EXE_NAME): $(EXE_SRC) $(LIB_NAME)
-	$(CXX) $(CXXFLAGS) -o $@ $^ -L. -lJobSystem -pthread
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ $^ -L. -lJobSystem -pthread
 
 clean:
 	rm -f $(LIB_NAME) $(EXE_NAME)
 
-.PHONY: all clean
+.PHONY: compile clean

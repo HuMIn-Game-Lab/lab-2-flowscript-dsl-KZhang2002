@@ -1,2 +1,2 @@
 compile:
-	clang++ -g -std=c++14 ./Code/main.cpp ./Code/JobSystem/*.cpp -o output -L/Code/lib -lJobSystem
+	g++ -g -std=c++14 -Wconversion ./Code/JobSystem/*.cpp ./Code/main.cpp -o output -L/Code/lib -lJobSystem

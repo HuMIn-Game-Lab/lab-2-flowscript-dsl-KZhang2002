@@ -3,12 +3,16 @@ project(lab_2_flowscript_dsl_KZhang2002)
 
 set(CMAKE_CXX_STANDARD 14)
 
+
 add_library(JobSystem SHARED
         Code/JobSystem/JobWorkerThread.cpp
         Code/JobSystem/JobSystem.cpp
         Code/JobSystem/DefaultJobFactory.cpp
         Code/JobSystem/CompileJob.cpp
         Code/JobSystem/RenderJob.cpp)
+
+find_package(Threads REQUIRED)
+target_link_libraries(JobSystem Threads::Threads)
 
 add_executable(lab_2_flowscript_dsl_KZhang2002
         Code/main.cpp

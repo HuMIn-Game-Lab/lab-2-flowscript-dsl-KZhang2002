@@ -2,6 +2,7 @@
 #define LAB_1_MULTITHREADING_KZHANG2002_JOBWORKERTHREAD_H
 
 # include "Job.h"
+#include <pthread.h>
 
 class JobSystem;
 

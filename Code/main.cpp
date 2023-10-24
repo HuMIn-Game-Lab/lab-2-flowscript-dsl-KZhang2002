@@ -2,17 +2,8 @@
 #include "CustomJob.h"
 #include "CustomJobFactory.h"
 #include <fstream>
-#include <direct.h>
-#include <windows.h>
 
 int main (){
-    char buffer[_MAX_PATH];
-    if (_getcwd(buffer, _MAX_PATH)) {
-        std::cout << "Current working directory: " << buffer << std::endl;
-    } else {
-        std::cerr << "Failed to get the current working directory." << std::endl;
-    }
-
     std::cout << "Creating Job System" << std::endl;
 
     JobSystem* js = JobSystem::CreateOrGet();
